@@ -1,7 +1,9 @@
 // Exercise 1
 // Fix the error
-// Make it compile
+// Make it compile`
 // Run test
+#[derive(PartialEq)]
+#[derive(Debug)]
 struct Person {
     name: String,
     age: u8,
@@ -18,12 +20,6 @@ fn exercise1() -> Person {
 
     p
 }
-
-// Exercise 2
-// Fix the error
-// Make it compile
-// Run test
-
 // Define the struct
 struct Agent  {
     name: String,
@@ -39,12 +35,12 @@ impl Agent {
 
     // Get the name of the person
     fn get_name(&self) -> &str {
-        todo!()
+        &self.name
     }
 
     // Get the age of the person
     fn get_age(&self) -> u32 {
-        todo!()
+        self.age
     }
 }
 
@@ -61,18 +57,18 @@ impl Calculator {
         Calculator { value: 0 }
     }
 
-    fn add(&self, num: i32) {
+    fn add(&mut self, num: i32) {
         self.value += num;
     }
 
-    fn subtract(mut self, num: i32) {
+    fn subtract(&mut self, num: i32) {
         self.value -= num;
     }
-    fn clear(self) {
+    fn clear(&mut self) {
         self.value = 0;
     }
 
-    fn get_value(self) -> i32 {
+    fn get_value(&self) -> i32 {
         self.value
     }
 }
@@ -85,7 +81,7 @@ struct User {
     last: String,
     age: u32,
 }
-
+#[allow(unused_variables)]
 fn exercise4() {
     let u1 = User {
         first: String::from("John"),
@@ -95,6 +91,7 @@ fn exercise4() {
 
     let u2 = User {
         first: String::from("Mary"),
+        last: String::from("Doe"), // Add explicit declaration for string type to avoid lost ownership of u1
         ..u1
         
     };
@@ -105,11 +102,13 @@ fn exercise4() {
 
 // Exercise 5
 // Make it compile
+#[derive(Debug)]
 struct Foo {
     str_val: String,
     int_val: i32,
 }
 
+#[allow(unused_variables)]
 fn exercise5() {
     let mut foos = Vec::new();
     foos.push(Foo {
@@ -122,10 +121,13 @@ fn exercise5() {
     });
 
     
-    let moved = foos[0];
-
+    let moved = &foos[0];
+    // Debug value of moved
+    println!("{:?}", moved);
     
-    let moved_field = foos[0].str_val;
+    let moved_field = &foos[0].str_val;
+    // Debug value of moved_field
+    println!("{}", moved_field);
 }
 
 // Exercise 6
@@ -153,12 +155,14 @@ impl Package {
         }
     }
 
-    fn is_international(&self) -> ??? {
-        // Something goes here...
+    fn is_international(&self) -> bool {
+        // International when sender and recipient is different
+        self.sender_country != self.recipient_country
     }
 
-    fn get_fees(&self, cents_per_gram: i32) -> ??? {
+    fn get_fees(&self, cents_per_gram: i32) -> i32 {
         // Something goes here...
+        self.weight_in_grams * cents_per_gram
     }
 }
 
@@ -208,6 +212,10 @@ mod tests {
 
     }
 
+    #[test]
+    fn exercise4_should_work() {
+        exercise4();
+    }
 
     // Test for exercise 6
     #[test]
@@ -255,3 +263,8 @@ mod tests {
     }
 
 }
+
+// fn main() {
+//     exercise4();
+//     exercise5();
+// }
