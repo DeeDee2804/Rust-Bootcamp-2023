@@ -1,6 +1,14 @@
 // Exercise 1 
 // Implement struct Point to make it work.
 // Make it compile
+#[allow(dead_code)]
+struct Position<T> {
+    x: T,
+    y: T
+}
+
+#[allow(dead_code)]
+#[allow(unused_variables)]
 fn exercise1() {
     let integer = Position { x: 5, y: 10 };
     let float = Position { x: 1.0, y: 4.0 };
@@ -11,11 +19,14 @@ fn exercise1() {
 // Exercise 2
 // Modify this struct to make the code work
 // Make it compile
-struct Point<T> {
+#[allow(dead_code)]
+struct Point<T, M> {
     x: T,
-    y: T,
+    y: M,
 }
 
+#[allow(dead_code)]
+#[allow(unused_variables)]
 fn exercise2() {
     // DON'T modify this code.
     let p = Point{x: 5, y : "hello".to_string()};
@@ -26,17 +37,21 @@ fn exercise2() {
 // Exercise 3
 // Make it compile
 // Add generic for Val to make the code work, DON'T modify the code in `main`.
-struct Val {
-    val: f64,
+#[allow(dead_code)]
+struct Val<T> {
+    val: T,
 }
 
-impl Val {
-    fn value(&self) -> &f64 {
+#[allow(dead_code)]
+impl<T> Val<T> {
+    fn value(&self) -> &T {
         &self.val
     }
 }
 
 
+#[allow(dead_code)]
+#[allow(unused_variables)]
 fn exercise3() {
     let x = Val{ val: 3.0 };
     let y = Val{ val: "hello".to_string()};
@@ -49,23 +64,46 @@ fn exercise3() {
 // Implementing logic
 // Run tests
 
-fn find_max<T>(collection: &[T]) -> Option<&T> {
-    todo!()
+fn find_max<T:Ord>(collection: &[T]) -> Option<&T> {  
+    if collection.len() == 0 {
+        None
+    } else {
+        let mut max:&T = &collection[0];
+        for item in collection.iter() {
+            if *max  < *item {
+                max = item
+            }
+        }
+        Some(&max)
+    }
+    
 }
 
 // Exercise 5 
 // Reverse the elements in a collection
 // Make it compile 
 // Run tests 
-fn reverse_collection<T>(collection: &[T]) {
-    todo!()
+fn reverse_collection<T:Copy>(collection: &mut[T]) {
+    let mut idx: usize = 0;
+    let len = collection.len();
+    while idx * 2 < len {
+        let tmp = collection[idx];
+        collection[idx] = collection[len-idx-1];
+        collection[len-idx-1] = tmp;
+        idx += 1;
+    }
 }
 
 
 // Exercise 6
 // Function to check if a collection contains a specific value
-fn contains_value<T>(collection: &[T], value: &T) -> bool {
-    todo!()
+fn contains_value<T:PartialEq>(collection: &[T], value: &T) -> bool {
+    for item in collection.iter() {
+        if *value == *item {
+            return true
+        } 
+    }
+    return false
 }
 
 // Unit tests
