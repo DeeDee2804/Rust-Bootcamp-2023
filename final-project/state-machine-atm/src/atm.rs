@@ -11,6 +11,12 @@ pub enum Key {
     Two,
     Three,
     Four,
+    Five,
+    Six,
+    Seven,
+    Eight,
+    Nine,
+    Delete,
     Enter,
 }
 
@@ -38,7 +44,6 @@ enum Auth {
     /// of cash to withdraw
     Authenticated,
 }
-
 
 
 
@@ -72,14 +77,19 @@ impl Default for Auth {
 //TODO
 // Implement trait From  for &str
 // Convert  elements in Key to &str
-impl From<Key> for String {
+impl From<Key> for &str {
     fn from(value: Key) -> Self {
         match value {
-            Key::One => "1".to_string(),
-            Key::Two => "2".to_string(),
-            Key::Three => "3".to_string(),
-            Key::Four => "4".to_string(),
-            Key::Enter => panic!("`Enter` is not valid")
+            Key::One => "1",
+            Key::Two => "2",
+            Key::Three => "3",
+            Key::Four => "4",
+            Key::Five => "5",
+            Key::Six => "6",
+            Key::Seven => "7",
+            Key::Eight => "8",
+            Key::Nine => "9",
+            _ => panic!("Key is not valid for convert to String")
         }
     }
 }
@@ -113,11 +123,16 @@ impl StateMachine for Atm {
                     }
                     ending_state.keystroke_register = Vec::new();
                 },
+            (Auth::Authenticating(_), Action::PressKey(Key::Delete)) => 
+                {
+                    ending_state.keystroke_register.pop();
+                },
             (Auth::Authenticated, Action::PressKey(Key::Enter)) => 
                 {
                     let mut number: String = String::from("");
                     for key in &starting_state.keystroke_register {
-                        number += &String::from(*key);
+                        // Instead of using from method of &str, we can use in inverse direction, by using into method
+                        number += Key::into(*key);
                     }
                     let deposit = number.parse::<u64>().unwrap();
                     if deposit <= starting_state.cash_inside {
@@ -334,6 +349,57 @@ fn sm_3_withdraw_acceptable_amount() {
         cash_inside: 9,
         expected_pin_hash: Auth::Waiting,
         keystroke_register: Vec::new(),
+    };
+
+    assert_eq!(end, expected);
+}
+
+#[test]
+fn sm_3_delete_one_keystroke_having_one() {
+    let start = Atm {
+        cash_inside: 10,
+        expected_pin_hash: Auth::Authenticating(1234),
+        keystroke_register: vec![Key::One],
+    };
+    let end = Atm::next_state(&start, &Action::PressKey(Key::Delete));
+    let expected = Atm {
+        cash_inside: 10,
+        expected_pin_hash: Auth::Authenticating(1234),
+        keystroke_register: Vec::new(),
+    };
+
+    assert_eq!(end, expected);
+}
+
+#[test]
+fn sm_3_delete_one_keystroke_having_many() {
+    let start = Atm {
+        cash_inside: 10,
+        expected_pin_hash: Auth::Authenticating(1234),
+        keystroke_register: vec![Key::One, Key::Two],
+    };
+    let end = Atm::next_state(&start, &Action::PressKey(Key::Delete));
+    let expected = Atm {
+        cash_inside: 10,
+        expected_pin_hash: Auth::Authenticating(1234),
+        keystroke_register: vec![Key::One],
+    };
+
+    assert_eq!(end, expected);
+}
+
+#[test]
+fn sm_3_delete_one_keystroke_empty() {
+    let start = Atm {
+        cash_inside: 10,
+        expected_pin_hash: Auth::Authenticating(1234),
+        keystroke_register: Vec::new(),
+    };
+    let end = Atm::next_state(&start, &Action::PressKey(Key::Delete));
+    let expected = Atm {
+        cash_inside: 10,
+        expected_pin_hash: Auth::Authenticating(1234),
+        keystroke_register:  Vec::new(),
     };
 
     assert_eq!(end, expected);
